@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>우리부부 은퇴생활비 계산기</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<style>
+  :root{--navy:#1E3A5F;--navy2:#2C5282;--orange:#F5A623;--bg:#F4F6FA;--card:#FFFFFF;--text:#1F2933;--muted:#5B6776;--line:#D9DEE7;--red:#C0392B;--green:#2E7D32}
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;font-size:18px;line-height:1.55}
+  header{background:var(--navy);color:#fff;padding:22px 16px 18px}
+  header .tag{display:inline-block;background:var(--orange);color:var(--navy);font-weight:700;font-size:16px;border-radius:20px;padding:2px 12px}
+  header h1{font-size:26px;margin:10px 0 4px}
+  header p{margin:0;font-size:16px;opacity:.9}
+  main{max-width:720px;margin:0 auto;padding:16px}
+  .card{background:var(--card);border-radius:16px;padding:20px 16px;margin-bottom:16px;box-shadow:0 2px 8px rgba(30,58,95,.08)}
+  .step{color:var(--orange);font-weight:800;font-size:16px;letter-spacing:.5px}
+  h2{font-size:22px;color:var(--navy);margin:4px 0 12px}
+  h3{font-size:19px;color:var(--navy);margin:18px 0 8px;padding-left:10px;border-left:5px solid var(--orange)}
+  .hint{color:var(--muted);font-size:16px;margin:0 0 10px}
+  .row{display:flex;align-items:center;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+  .row label{flex:1;font-size:18px}
+  .badge{font-size:14px;font-weight:700;border-radius:6px;padding:1px 7px;margin-left:6px;vertical-align:2px}
+  .b-fix{background:#E3EBF6;color:var(--navy)}
+  .b-var{background:#FFF1D6;color:#9A6200}
+  .row input{width:110px;font-size:20px;padding:10px;border:2px solid var(--line);border-radius:10px;text-align:right}
+  .row input:focus{outline:none;border-color:var(--orange)}
+  .unit{font-size:16px;color:var(--muted);width:34px}
+  .btns{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px}
+  button{font-size:18px;font-weight:700;border:none;border-radius:12px;padding:14px 18px;cursor:pointer;flex:1;min-width:140px}
+  .btn-main{background:var(--navy);color:#fff}
+  .btn-sub{background:#E7ECF3;color:var(--navy)}
+  .sum-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:6px}
+  .sum{background:#F7F9FC;border-radius:12px;padding:12px;text-align:center}
+  .sum .k{font-size:16px;color:var(--muted)}
+  .sum .v{font-size:24px;font-weight:800;color:var(--navy)}
+  .sum.total{grid-column:1/-1;background:var(--navy)}
+  .sum.total .k{color:#DCE5F2}
+  .sum.total .v{color:var(--orange);font-size:32px}
+  .msg{background:#FFF7E6;border-left:5px solid var(--orange);border-radius:8px;padding:12px 14px;margin-top:14px;font-size:18px}
+  .rates{display:flex;gap:8px;margin:6px 0 4px}
+  .rates button{background:#E7ECF3;color:var(--navy);min-width:0;padding:12px 6px}
+  .rates button.on{background:var(--orange);color:var(--navy)}
+  .fv{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:12px}
+  .fv div{background:#F7F9FC;border-radius:12px;padding:10px 4px;text-align:center}
+  .fv .k{font-size:16px;color:var(--muted)}
+  .fv .v{font-size:22px;font-weight:800;color:var(--navy)}
+  .fv .last .v{color:var(--red)}
+  .chart-box{position:relative;height:260px;margin-top:14px}
+  .big{font-size:22px;font-weight:800;color:var(--red)}
+  .next{display:block;text-align:center;background:var(--orange);color:var(--navy);font-weight:800;font-size:19px;text-decoration:none;border-radius:12px;padding:16px;margin-top:14px}
+  .hidden{display:none}
+  footer{max-width:720px;margin:0 auto;padding:8px 16px 32px;color:var(--muted);font-size:16px}
+  footer .disc{background:#fff;border:1px solid var(--line);border-radius:12px;padding:12px 14px}
+  footer .brand{margin-top:10px;font-weight:700;color:var(--navy)}
+</style>
+</head>
+<body>
+<header>
+  <span class="tag">실습 1 · 2</span>
+  <h1>우리부부 은퇴생활비 계산기</h1>
+  <p>군포시가족센터 · 동행하는 부부 1회차</p>
+</header>
+
+<main>
+  <!-- STEP 1 -->
+  <section class="card">
+    <div class="step">STEP 1</div>
+    <h2>지금 기준, 우리 부부 한 달 생활비</h2>
+    <p class="hint">은퇴 후 <b>한 달</b>에 쓸 돈을 <b>만원 단위</b>로 적어 주세요. 모르면 비워도 됩니다.<br>
+      <span class="badge b-fix">고정</span> 숨만 쉬어도 나가는 돈 · <span class="badge b-var">변동</span> 조절할 수 있는 돈</p>
+
+    <h3>꼭 필요한 돈 (최소 생활비)</h3>
+    <div id="minList"></div>
+
+    <h3>품위 있는 노후를 위한 돈 (여유 생활비)</h3>
+    <div id="extList"></div>
+
+    <div class="btns">
+      <button class="btn-sub" onclick="fillExample()">예시값 넣기</button>
+      <button class="btn-sub" onclick="clearAll()">모두 지우기</button>
+    </div>
+  </section>
+
+  <!-- RESULT 1 -->
+  <section class="card">
+    <div class="step">결과 1</div>
+    <h2>우리 부부 월 생활비</h2>
+    <div class="sum-grid">
+      <div class="sum"><div class="k">최소 생활비</div><div class="v" id="sMin">0</div></div>
+      <div class="sum"><div class="k">여유 생활비</div><div class="v" id="sExt">0</div></div>
+      <div class="sum"><div class="k">고정비 소계</div><div class="v" id="sFix">0</div></div>
+      <div class="sum"><div class="k">변동비 소계</div><div class="v" id="sVar">0</div></div>
+      <div class="sum total"><div class="k">한 달 합계 (부부 합의 금액)</div><div class="v" id="sTot">0만원</div></div>
+    </div>
+    <div class="chart-box"><canvas id="cmpChart"></canvas></div>
+    <div class="msg" id="cmpMsg">항목을 입력하면 50세 이상 부부의 평균 기준과 비교해 드립니다.</div>
+  </section>
+
+  <!-- STEP 2 -->
+  <section class="card">
+    <div class="step">STEP 2</div>
+    <h2>물가가 오르면, 10년·20년 뒤엔?</h2>
+    <p class="hint">물가상승률을 골라 보세요. (최근 물가: 2026년 1~10월 평균 2.7%)</p>
+    <div class="rates" id="rates">
+      <button data-r="2">연 2%</button>
+      <button data-r="2.5" class="on">연 2.5%</button>
+      <button data-r="3">연 3%</button>
+    </div>
+    <div class="fv">
+      <div><div class="k">지금</div><div class="v" id="f0">-</div></div>
+      <div><div class="k">10년 뒤</div><div class="v" id="f10">-</div></div>
+      <div class="last"><div class="k">20년 뒤</div><div class="v" id="f20">-</div></div>
+    </div>
+    <div class="chart-box"><canvas id="fvChart"></canvas></div>
+    <div class="msg">
+      지금 통장에 있는 <b>1억 원</b>은<br>20년 뒤 <span class="big" id="pp">-</span> 어치의 물건밖에 못 삽니다.
+    </div>
+    <a class="next" href="pension_gap.html">다음 ▶ 연금 공백 진단하기</a>
+  </section>
+</main>
+
+<footer>
+  <div class="disc">
+    본 계산기는 교육 목적으로 제공되며, 실제 금융 상품과 다를 수 있습니다. 정확한 수치는 전문가 상담을 통해 확인하시기 바랍니다.<br><br>
+    · 비교 기준: 국민연금연구원 제10차 국민노후보장패널조사 부가조사(2025.12.31 발표) — 부부 최소 216.6만원 · 적정 298.1만원<br>
+    · 물가: 국가데이터처 소비자물가동향(2026.11.3 발표)<br>
+    · 미래 생활비 = 지금 생활비 × (1 + 물가상승률)<sup>년수</sup>
+  </div>
+  <div class="brand">IdentiFi 정원준 CFP · 국가공인 신용상담사</div>
+</footer>
+
+<script>
+const ITEMS = {
+  min: [
+    {id:'food',  name:'식비',                 t:'var', ex:80},
+    {id:'house', name:'주거·관리비·공과금',   t:'fix', ex:35},
+    {id:'tel',   name:'통신비',               t:'fix', ex:12},
+    {id:'trans', name:'교통비',               t:'var', ex:15},
+    {id:'ins',   name:'보험료',               t:'fix', ex:30},
+    {id:'med',   name:'기본 의료비',          t:'var', ex:15}
+  ],
+  ext: [
+    {id:'care',  name:'의료·간병 대비',       t:'var', ex:20},
+    {id:'leis',  name:'여가·여행',            t:'var', ex:30},
+    {id:'event', name:'경조사·용돈',          t:'var', ex:25},
+    {id:'hobby', name:'취미·기타',            t:'var', ex:15}
+  ]
+};
+const BENCH = {min:216.6, ok:298.1};
+const KEY = 'gunpo_s1_living';
+let rate = 2.5;
+
+function fmt(n){ return (Math.round(n*10)/10).toLocaleString('ko-KR',{maximumFractionDigits:1}); }
+function fmtWon(n){ return Math.round(n).toLocaleString('ko-KR') + '만원'; }
+
+function buildRows(list, el){
+  el.innerHTML = list.map(it => `
+    <div class="row">
+      <label for="${it.id}">${it.name}<span class="badge ${it.t==='fix'?'b-fix':'b-var'}">${it.t==='fix'?'고정':'변동'}</span></label>
+      <input id="${it.id}" type="number" inputmode="decimal" min="0" placeholder="0">
+      <span class="unit">만원</span>
+    </div>`).join('');
+}
+buildRows(ITEMS.min, document.getElementById('minList'));
+buildRows(ITEMS.ext, document.getElementById('extList'));
+
+function val(id){ const v = parseFloat(document.getElementById(id).value); return isNaN(v)||v<0 ? 0 : v; }
+
+let cmpChart, fvChart;
+function makeCharts(){
+  if (typeof Chart === 'undefined') return;
+  Chart.defaults.font.size = 15;
+  Chart.defaults.font.family = '"Malgun Gothic","Apple SD Gothic Neo",sans-serif';
+  cmpChart = new Chart(document.getElementById('cmpChart'), {
+    type:'bar',
+    data:{labels:['우리 부부','부부 최소','부부 적정'],
+      datasets:[{data:[0,BENCH.min,BENCH.ok],backgroundColor:['#F5A623','#9FB3CC','#1E3A5F'],borderRadius:8}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmt(c.raw)+'만원'}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'만'}}}}
+  });
+  fvChart = new Chart(document.getElementById('fvChart'), {
+    type:'bar',
+    data:{labels:['지금','10년 뒤','20년 뒤'],
+      datasets:[{data:[0,0,0],backgroundColor:['#1E3A5F','#2C5282','#C0392B'],borderRadius:8}]},
+    options:{maintainAspectRatio:false,plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>fmtWon(c.raw)}}},
+      scales:{y:{beginAtZero:true,ticks:{callback:v=>v+'만'}}}}
+  });
+}
+
+function calc(){
+  let sMin=0,sExt=0,sFix=0,sVar=0;
+  ITEMS.min.forEach(it=>{const v=val(it.id); sMin+=v; it.t==='fix'?sFix+=v:sVar+=v;});
+  ITEMS.ext.forEach(it=>{const v=val(it.id); sExt+=v; it.t==='fix'?sFix+=v:sVar+=v;});
+  const tot = sMin+sExt;
+  document.getElementById('sMin').textContent = fmt(sMin)+'만';
+  document.getElementById('sExt').textContent = fmt(sExt)+'만';
+  document.getElementById('sFix').textContent = fmt(sFix)+'만';
+  document.getElementById('sVar').textContent = fmt(sVar)+'만';
+  document.getElementById('sTot').textContent = fmt(tot)+'만원';
+
+  const msg = document.getElementById('cmpMsg');
+  if (tot<=0) msg.innerHTML = '항목을 입력하면 50세 이상 부부의 평균 기준과 비교해 드립니다.';
+  else if (tot<BENCH.min) msg.innerHTML = `우리 부부는 <b>부부 최소 생활비(216.6만원)</b>보다 <b>${fmt(BENCH.min-tot)}만원 적게</b> 잡으셨어요. 빠진 항목이 없는지 한 번 더 살펴보세요.`;
+  else if (tot<BENCH.ok) msg.innerHTML = `우리 부부는 <b>최소(216.6만원)와 적정(298.1만원) 사이</b>입니다. 여유 생활비를 부부가 함께 조정해 보세요.`;
+  else msg.innerHTML = `우리 부부는 <b>적정 생활비(298.1만원)보다 ${fmt(tot-BENCH.ok)}만원 많게</b> 잡으셨어요. 그만큼 준비할 돈도 커집니다.`;
+
+  const r = rate/100;
+  const f10 = tot*Math.pow(1+r,10), f20 = tot*Math.pow(1+r,20);
+  document.getElementById('f0').textContent  = tot>0?fmtWon(tot):'-';
+  document.getElementById('f10').textContent = tot>0?fmtWon(f10):'-';
+  document.getElementById('f20').textContent = tot>0?fmtWon(f20):'-';
+  document.getElementById('pp').textContent = Math.round(10000/Math.pow(1+r,20)).toLocaleString('ko-KR')+'만원';
+
+  if (cmpChart){ cmpChart.data.datasets[0].data[0]=tot; cmpChart.update(); }
+  if (fvChart){ fvChart.data.datasets[0].data=[tot,f10,f20]; fvChart.update(); }
+
+  try { localStorage.setItem(KEY, JSON.stringify({total:tot, rate:rate, items:Object.fromEntries([...ITEMS.min,...ITEMS.ext].map(it=>[it.id,document.getElementById(it.id).value]))})); } catch(e){}
+}
+
+function fillExample(){ [...ITEMS.min,...ITEMS.ext].forEach(it=>document.getElementById(it.id).value=it.ex); calc(); }
+function clearAll(){ [...ITEMS.min,...ITEMS.ext].forEach(it=>document.getElementById(it.id).value=''); calc(); }
+
+document.querySelectorAll('.row input').forEach(i=>i.addEventListener('input',calc));
+document.querySelectorAll('#rates button').forEach(b=>b.addEventListener('click',()=>{
+  rate = parseFloat(b.dataset.r);
+  document.querySelectorAll('#rates button').forEach(x=>x.classList.toggle('on',x===b));
+  calc();
+}));
+
+// 이전 입력 복원
+try {
+  const saved = JSON.parse(localStorage.getItem(KEY)||'null');
+  if (saved && saved.items){
+    Object.entries(saved.items).forEach(([k,v])=>{const el=document.getElementById(k); if(el) el.value=v;});
+    if (saved.rate){ rate=saved.rate; document.querySelectorAll('#rates button').forEach(x=>x.classList.toggle('on',parseFloat(x.dataset.r)===rate)); }
+  }
+} catch(e){}
+
+makeCharts();
+calc();
+</script>
+</body>
+</html>
